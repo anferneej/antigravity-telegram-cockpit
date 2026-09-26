@@ -213,15 +213,58 @@ def query_gemini_or_synthesizer(bot_key: str, question: str, context: str = "") 
 
 
 def make_keyboard(bot_key: str) -> Dict[str, Any]:
-    """生成底部快捷按鈕"""
+    """生成底部快捷按鈕 (第一個按鈕設定為「最新情報」)"""
     return {
         "keyboard": [
-            [{"text": "📰 最新情報"}, {"text": "🔍 監控清單"}],
+            [{"text": "最新情報"}, {"text": "🔍 監控清單"}],
             [{"text": "⏰ 推播時間"}, {"text": "📊 駕駛艙狀態"}]
         ],
         "resize_keyboard": True,
         "is_persistent": True
     }
+
+
+def get_latest_news_for_bot(bot_key: str, name: str) -> str:
+    """取得該頻道最新情報 (今日推播摘要或即時掃描)"""
+    from .content_fetcher import fetch_site_content
+
+    metrics = InboxManager.get_metrics_summary()
+    today_pushes = [p for p in metrics.get("recent_pushes", []) if p.get("bot_key") == bot_key]
+
+    if today_pushes:
+        msg_lines = [
+            f"📰 <b>【{name}・今日最新情報摘要】</b>\n",
+            "以下為今日已推播之精選焦點：\n"
+        ]
+        for idx, p in enumerate(today_pushes[:3], 1):
+            t = html.escape(p.get("title", ""))
+            u = p.get("url", "")
+            msg_lines.append(f"{idx}. <b>{t}</b>\n   🔗 <a href='{u}'>點此閱讀全文 ↗</a>\n")
+        msg_lines.append("💡 <i>如需深入了解特定篇章，長按情報選擇「回覆」即可向 AI 發問！</i>")
+        return "\n".join(msg_lines)
+
+    # 若今日尚未推播該頻道，現場即時抓取新鮮情報回傳
+    sites = ConfigManager.get_sites_config()
+    matched_sites = [s for s in sites if s.get("target_bot", "default") == bot_key]
+    if not matched_sites and bot_key == "default":
+        matched_sites = sites
+
+    for s in matched_sites:
+        try:
+            arts = fetch_site_content(s)
+            if arts:
+                art = arts[0]
+                return (
+                    f"📰 <b>【{name}・即時最新情資速報】</b>\n\n"
+                    f"<b>{html.escape(art.get('title', ''))}</b>\n\n"
+                    f"{art.get('summary', '')}\n\n"
+                    f"📌 來源：<code>{html.escape(art.get('source_name', ''))}</code>\n"
+                    f"<a href=\"{art.get('url', '')}\">點此閱讀完整內容 ↗</a>"
+                )
+        except Exception:
+            continue
+
+    return f"📰 <b>【{name}】</b>\n\n目前暫無未讀的新情報，每日排程將於 08:00, 12:00, 18:00 自動為您檢測更新！"
 
 
 def run_single_bot_listener(bot_key: str, bot_data: Dict[str, Any], stop_event: threading.Event):
@@ -233,6 +276,15 @@ def run_single_bot_listener(bot_key: str, bot_data: Dict[str, Any], stop_event: 
 
     print(f"  [Fleet] 啟動監聽線程: 【{name}】 (Channel: {bot_key})")
     InboxManager.update_bot_heartbeat(bot_key, "online", "監聽輪詢中")
+
+    # 若為總管理 Bot，確保清除左側自訂選單命令列表
+    if bot_key == "default":
+        try:
+            requests.post(f"{api_base}/deleteMyCommands", timeout=5)
+            requests.post(f"{api_base}/deleteMyCommands", json={"scope": {"type": "all_private_chats"}}, timeout=5)
+            requests.post(f"{api_base}/setChatMenuButton", json={"menu_button": {"type": "default"}}, timeout=5)
+        except Exception:
+            pass
 
     while not stop_event.is_set():
         try:
@@ -259,7 +311,7 @@ def run_single_bot_listener(bot_key: str, bot_data: Dict[str, Any], stop_event: 
                     if not raw_text:
                         continue
 
-                    # 1. 快捷選單指令處理
+                    # 1. 快捷選單指令處理 (精確比對 4 大功能按鈕與斜線命令)
                     if raw_text in ["/start", "開始"]:
                         welcome_msg = (
                             f"👋 <b>歡迎使用【{name}】！</b>\n\n"
@@ -269,22 +321,42 @@ def run_single_bot_listener(bot_key: str, bot_data: Dict[str, Any], stop_event: 
                         BotFleet.send_message(bot_key, chat_id, welcome_msg, reply_markup=make_keyboard(bot_key))
                         continue
 
-                    if raw_text in ["/time", "⏰ 推播時間"]:
-                        settings = ConfigManager.get_settings()
-                        times_str = ", ".join(settings.get("schedule_times", ["08:00", "12:00", "18:00"]))
-                        BotFleet.send_message(bot_key, chat_id, f"⏰ <b>每日固定推播時間點</b>：\n<code>{times_str}</code> (台北時間)")
+                    # 功能按鈕 1：最新情報
+                    if raw_text in ["/today", "最新情報", "📰 最新情報", "今日情報", "📰 獲取今日最新情報"]:
+                        BotFleet.send_chat_action(bot_key, chat_id, "typing")
+                        news_reply = get_latest_news_for_bot(bot_key, name)
+                        BotFleet.send_message(bot_key, chat_id, news_reply, reply_markup=make_keyboard(bot_key))
                         continue
 
-                    if raw_text in ["/sites", "🔍 監控清單"]:
+                    # 功能按鈕 2：推播時間
+                    if raw_text in ["/time", "⏰ 推播時間", "推播時間"]:
+                        settings = ConfigManager.get_settings()
+                        times_str = ", ".join(settings.get("schedule_times", ["08:00", "12:00", "18:00"]))
+                        BotFleet.send_message(
+                            bot_key,
+                            chat_id,
+                            f"⏰ <b>每日固定推播時間點</b>：\n<code>{times_str}</code> (台北時間)",
+                            reply_markup=make_keyboard(bot_key)
+                        )
+                        continue
+
+                    # 功能按鈕 3：監控清單
+                    if raw_text in ["/sites", "🔍 監控清單", "監控清單"]:
                         sites = ConfigManager.get_sites_config()
                         matched = [s for s in sites if s.get("target_bot", "default") == bot_key]
                         if not matched and bot_key == "default":
                             matched = sites
                         site_list = "\n".join([f"• <b>{s.get('name')}</b> ({s.get('type')})" for s in matched]) or "（無綁定站點）"
-                        BotFleet.send_message(bot_key, chat_id, f"🔍 <b>【{name}】監控站點清單</b>：\n\n{site_list}")
+                        BotFleet.send_message(
+                            bot_key,
+                            chat_id,
+                            f"🔍 <b>【{name}】監控站點清單</b>：\n\n{site_list}",
+                            reply_markup=make_keyboard(bot_key)
+                        )
                         continue
 
-                    if raw_text in ["/cockpit", "/status", "📊 駕駛艙狀態"]:
+                    # 功能按鈕 4：駕駛艙狀態
+                    if raw_text in ["/cockpit", "/status", "📊 駕駛艙狀態", "駕駛艙狀態"]:
                         metrics = InboxManager.get_metrics_summary()
                         status_msg = (
                             f"📊 <b>【AntiGravity 駕駛艙中樞實況】</b>\n\n"
@@ -293,7 +365,12 @@ def run_single_bot_listener(bot_key: str, bot_data: Dict[str, Any], stop_event: 
                             f"• 頻道名稱：<b>{name}</b> ({bot_key})\n"
                             f"• 運行模式：AntiGravity 控制塔常駐守護中 🚀"
                         )
-                        BotFleet.send_message(bot_key, chat_id, status_msg)
+                        BotFleet.send_message(
+                            bot_key,
+                            chat_id,
+                            status_msg,
+                            reply_markup=make_keyboard(bot_key)
+                        )
                         continue
 
                     # 2. 提問與追問處理 (Reply 引用追問 vs 直接諮詢)
