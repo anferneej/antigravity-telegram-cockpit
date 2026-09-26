@@ -380,24 +380,58 @@ def run_single_bot_listener(bot_key: str, bot_data: Dict[str, Any], stop_event: 
                     if reply_msg and reply_msg.get("text"):
                         context_text = reply_msg.get("text", "")
 
-                    # 登記至 Cockpit 收件匣
-                    answer = query_gemini_or_synthesizer(bot_key, raw_text, context_text)
-                    InboxManager.add_interaction(
-                        bot_key=bot_key,
-                        chat_id=chat_id,
-                        user_name=user_name,
-                        question=raw_text,
-                        context=context_text,
-                        auto_answer=answer
-                    )
+                    api_key = ConfigManager.get_gemini_api_key()
+                    if api_key and api_key.strip():
+                        # 若有配置 API Key，直接由雲端模型即時回應
+                        answer = query_gemini_or_synthesizer(bot_key, raw_text, context_text)
+                        InboxManager.add_interaction(
+                            bot_key=bot_key,
+                            chat_id=chat_id,
+                            user_name=user_name,
+                            question=raw_text,
+                            context=context_text,
+                            auto_answer=answer
+                        )
+                        BotFleet.send_message(
+                            bot_key=bot_key,
+                            chat_id=chat_id,
+                            text=answer,
+                            reply_to_message_id=msg_id
+                        )
+                    else:
+                        # 方案 2：AntiGravity 控制塔協同模式 (Bridge Mode)
+                        # 登記至待辦佇列 (pending)，立即向手機回報「已送入中樞」，由 AntiGravity 大腦親覆
+                        rec = InboxManager.add_interaction(
+                            bot_key=bot_key,
+                            chat_id=chat_id,
+                            user_name=user_name,
+                            question=raw_text,
+                            context=context_text,
+                            auto_answer=None
+                        )
+                        item_id = rec.get("id", "")
+                        
+                        context_hint = ""
+                        if context_text:
+                            first_line = [l.strip() for l in context_text.splitlines() if l.strip()]
+                            if first_line:
+                                clean_title = first_line[0].replace("<b>", "").replace("</b>", "")
+                                context_hint = f"📌 <b>關聯情報</b>：<code>{html.escape(clean_title[:35])}</code>\n"
 
-                    # 回傳答案
-                    BotFleet.send_message(
-                        bot_key=bot_key,
-                        chat_id=chat_id,
-                        text=answer,
-                        reply_to_message_id=msg_id
-                    )
+                        ack_msg = (
+                            f"⏳ <b>【已送入 AntiGravity 駕駛艙中樞】</b>\n\n"
+                            f"收到您的諮詢：<i>「{html.escape(raw_text)}」</i>\n"
+                            f"{context_hint}"
+                            f"• <b>佇列單號</b>：<code>{item_id}</code>\n"
+                            f"• <b>處理中樞</b>：AntiGravity 控制塔 (Gemini 智慧大腦)\n\n"
+                            f"🧠 指揮官已收到提問，稍後將為您進行深度研析並即時回傳！"
+                        )
+                        BotFleet.send_message(
+                            bot_key=bot_key,
+                            chat_id=chat_id,
+                            text=ack_msg,
+                            reply_to_message_id=msg_id
+                        )
 
             elif resp.status_code == 409:
                 print(f"[Warn] {bot_key} 遭遇衝突 (409 Conflict)，稍後重試...")

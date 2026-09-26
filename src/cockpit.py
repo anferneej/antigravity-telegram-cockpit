@@ -140,14 +140,35 @@ def cmd_inbox(args):
     if not items:
         print("  目前尚無互動紀錄。")
     for it in items:
-        status_tag = "[已回覆]" if it.get("status") == "answered" else "[待處理]"
+        status_tag = "[已回覆]" if it.get("status") == "answered" else "[⏳ 待處理]"
         print(f"  • ID: {it.get('id')} {status_tag} 來自 @{it.get('user_name')} ({it.get('bot_key')} 頻道)")
         print(f"    時間: {it.get('timestamp')}")
         print(f"    問題: {it.get('question')}")
+        if it.get("context"):
+            c_first = it.get("context").replace("\n", " ")[:60]
+            print(f"    情境: {c_first}...")
         if it.get("answer"):
             ans_short = it.get("answer").replace("\n", " ")[:60]
             print(f"    回答: {ans_short}...")
         print("-" * 64)
+
+
+def cmd_pending(args):
+    """專供 AntiGravity 查看並批次處理所有待回答的 Telegram 提問"""
+    items = InboxManager.get_inbox(status="pending", limit=20)
+    if not items:
+        print("\n[Cockpit] ✨ 目前沒有待處理的 Telegram 提問。")
+        return
+    print(f"\n[Cockpit] ⚠️ 發現 {len(items)} 筆來自手機的待處理提問（等待 AntiGravity 親覆）：")
+    for it in items:
+        print("=" * 64)
+        print(f"🔹 佇列 ID: {it.get('id')} | 頻道: 【{it.get('bot_key')}】 | 用戶: @{it.get('user_name')}")
+        print(f"🕒 時間: {it.get('timestamp')}")
+        if it.get("context"):
+            print(f"📌 背景情報內容:\n{it.get('context')}")
+        print(f"❓ 使用者提問:\n{it.get('question')}")
+    print("=" * 64)
+    print("💡 提示：在 AntiGravity 對話框直接說「回覆該題 [ID]」即可調用 Gemini 大腦生成解答並推播！\n")
 
 
 def cmd_reply(args):
@@ -263,6 +284,10 @@ def main():
     p_inbox = subparsers.add_parser("inbox", help="查看 Telegram 互動收件匣")
     p_inbox.add_argument("--status", choices=["pending", "answered"], help="依狀態篩選")
     p_inbox.set_defaults(func=cmd_inbox)
+
+    # pending
+    p_pending = subparsers.add_parser("pending", help="查看所有待回答的 Telegram 提問佇列")
+    p_pending.set_defaults(func=cmd_pending)
 
     # reply
     p_reply = subparsers.add_parser("reply", help="回覆 Telegram 用戶提問")
