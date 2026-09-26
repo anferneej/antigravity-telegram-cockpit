@@ -1,0 +1,239 @@
+[
+  {
+    "id": "wsj_chinese_traditional",
+    "name": "華爾街日報 (WSJ 繁體中文熱門)",
+    "url": "https://wsj.buzzing.cc/zh-Hant/feed.xml",
+    "original_url": "https://cn.wsj.com/rss-news-and-feeds/zh-hant",
+    "type": "rss",
+    "target_bot": "finance",
+    "enabled": true,
+    "description": "華爾街日報繁體中文即時熱門新聞與財經焦點"
+  },
+  {
+    "id": "digitimes_supplychain",
+    "name": "DIGITIMES (電子時報・產經與供應鏈)",
+    "url": "https://www.digitimes.com.tw/tech/rss/xml/xmlrss_90_0.xml",
+    "original_url": "https://www.digitimes.com.tw/tech/rss/xml/xmlrss_90_0.xml",
+    "type": "rss",
+    "target_bot": "finance",
+    "enabled": true,
+    "description": "兩岸科技產業脈動與全球科技供應鏈深入報導"
+  },
+  {
+    "id": "thenewslens",
+    "name": "The News Lens 關鍵評論網",
+    "url": "https://feeds.feedburner.com/TheNewsLens",
+    "original_url": "https://feeds.feedburner.com/TheNewsLens",
+    "type": "rss",
+    "target_bot": "finance",
+    "enabled": true,
+    "description": "國際政治經濟脈動與深度政經時事觀點評論"
+  },
+  {
+    "id": "greenhorn_finance",
+    "name": "綠角財經筆記 (指數化投資與資產配置)",
+    "url": "https://greenhornfinancefootnote.blogspot.com/feeds/posts/default?redirect=no",
+    "original_url": "https://greenhornfinancefootnote.blogspot.com/",
+    "type": "rss",
+    "target_bot": "finance",
+    "enabled": true,
+    "description": "指數化投資、資產配置與全球金融市場觀察筆記"
+  },
+  {
+    "id": "reading_outpost",
+    "name": "閱讀前哨站 (瓦基讀書心得)",
+    "url": "https://readingoutpost.com/feed/",
+    "original_url": "https://readingoutpost.com/reading/",
+    "type": "rss",
+    "target_bot": "reading",
+    "enabled": true,
+    "description": "瓦基閱讀前哨站最新說書、閱讀心得與個人成長文章"
+  },
+  {
+    "id": "playpc_esor",
+    "name": "電腦玩物 (Esor 數位工作術)",
+    "url": "http://feeds.feedburner.com/playpc",
+    "original_url": "http://feeds.feedburner.com/playpc",
+    "type": "rss",
+    "target_bot": "reading",
+    "enabled": true,
+    "description": "數位生產力、AI 工具應用與個人成長筆記"
+  },
+  {
+    "id": "tanja_read",
+    "name": "坦雅讀一讀 (Blogger)",
+    "url": "https://tanjaread.blogspot.com/feeds/posts/default?alt=rss",
+    "original_url": "https://tanjaread.blogspot.com/",
+    "type": "rss",
+    "target_bot": "reading",
+    "enabled": true,
+    "description": "坦雅讀一讀部落格最新文章"
+  },
+  {
+    "id": "i_chentsai",
+    "name": "蔡依橙的閱讀筆記 (臨床研究與跨界思維)",
+    "url": "https://i-chentsai.innovarad.tw/",
+    "original_url": "https://i-chentsai.innovarad.tw/",
+    "type": "html",
+    "item_selector": "div.post",
+    "title_selector": "h2 a",
+    "link_selector": "h2 a",
+    "target_bot": "reading",
+    "enabled": true,
+    "description": "蔡依橙醫師個人思維、深度閱讀筆記與 AI 工作流實戰"
+  },
+  {
+    "id": "vocus_maxjamesread",
+    "name": "姆斯的閱讀空間 (方格子沙龍)",
+    "url": "https://vocus.cc/api/rss/salon/6453460ffd897800018c9186/articles",
+    "original_url": "https://vocus.cc/salon/6453460ffd897800018c9186/room/maxjamesread",
+    "type": "rss",
+    "target_bot": "reading",
+    "enabled": true,
+    "description": "姆斯的閱讀空間：深度閱讀書評、人生基礎能力與好書精華"
+  },
+  {
+    "id": "vocus_77reading",
+    "name": "77reading (方格子 Vocus)",
+    "url": "https://vocus.cc/api/rss/user/5a41f40beceaedd6be9169a1/articles",
+    "original_url": "https://vocus.cc/user/@77reading",
+    "type": "rss",
+    "target_bot": "reading",
+    "enabled": true,
+    "description": "方格子創作者 @77reading 最新發文"
+  },
+  {
+    "id": "vocus_richy_salon",
+    "name": "Richy's 辦公室 (方格子沙龍)",
+    "url": "https://vocus.cc/api/rss/salon/6718c728fd897800013a2b22/articles",
+    "original_url": "https://vocus.cc/salon/6718c728fd897800013a2b22",
+    "type": "rss",
+    "target_bot": "reading",
+    "enabled": true,
+    "description": "方格子沙龍 6718c728fd897800013a2b22 最新文章"
+  },
+  {
+    "id": "technews_main",
+    "name": "科技新報 (TechNews 即時快訊)",
+    "url": "https://technews.tw/feed/",
+    "original_url": "https://technews.tw/tag/rss/",
+    "type": "rss",
+    "target_bot": "tech",
+    "enabled": true,
+    "description": "科技新報官方即時新聞全站 RSS Feed"
+  },
+  {
+    "id": "digitimes_focus",
+    "name": "DIGITIMES (電子時報・科技焦點)",
+    "url": "https://www.digitimes.com.tw/tech/rss/xml/xmlrss_10_0.xml",
+    "original_url": "https://www.digitimes.com.tw/tech/rss/xml/xmlrss_10_0.xml",
+    "type": "rss",
+    "target_bot": "tech",
+    "enabled": true,
+    "description": "半導體、AI 伺服器與全球資通訊即時焦點"
+  },
+  {
+    "id": "digitimes_research",
+    "name": "DIGITIMES (電子時報・產業研究報告)",
+    "url": "https://www.digitimes.com.tw/tech/rss/xml/xmlrss_30_0.xml",
+    "original_url": "https://www.digitimes.com.tw/tech/rss/xml/xmlrss_30_0.xml",
+    "type": "rss",
+    "target_bot": "tech",
+    "enabled": true,
+    "description": "DIGITIMES 深度產業研究與市場數據分析報告"
+  },
+  {
+    "id": "techcrunch_global",
+    "name": "TechCrunch (全球科技創投速遞)",
+    "url": "https://techcrunch.com/feed",
+    "original_url": "https://techcrunch.com/feed",
+    "type": "rss",
+    "target_bot": "tech",
+    "enabled": true,
+    "description": "全球矽谷科技巨頭動態與新創融資情報 (自動翻譯繁中摘要)"
+  },
+  {
+    "id": "books_okapi",
+    "name": "博客來 OKAPI (閱讀生活誌)",
+    "url": "https://okapi.books.com.tw/search/latest?loc=newlist",
+    "original_url": "https://okapi.books.com.tw/search/latest?loc=newlist",
+    "type": "html",
+    "item_selector": "li",
+    "title_selector": "div.content h3 a",
+    "link_selector": "div.content h3 a",
+    "date_selector": "p.article-info",
+    "target_bot": "reading",
+    "enabled": true,
+    "description": "博客來 OKAPI 最新深度書評、作家專訪與閱讀生活選書"
+  },
+  {
+    "id": "yt_UC1tp9qN7mqIJ7CLVNVvsKzg",
+    "name": "🎬 冏星人 (YouTube 說書與知識評析)",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC1tp9qN7mqIJ7CLVNVvsKzg",
+    "original_url": "https://www.youtube.com/@shintaroReview",
+    "type": "youtube",
+    "target_bot": "youtube",
+    "enabled": true,
+    "description": "冏星人 YouTube 頻道最新影音重點與深度評析"
+  },
+  {
+    "id": "yt_UCPgGtH2PxZ9xR0ehzQ27FHw",
+    "name": "🎬 文森說書 (YouTube 精選說書)",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCPgGtH2PxZ9xR0ehzQ27FHw",
+    "original_url": "https://www.youtube.com/@vincent_reading",
+    "type": "youtube",
+    "target_bot": "youtube",
+    "enabled": true,
+    "description": "文森說書 YouTube 頻道最新精華好書說書影片重點分析"
+  },
+  {
+    "id": "yt_UCQbyKhmFHIRptrAJMSwS-dw",
+    "name": "🎬 NeKo嗚喵 (YouTube 說書書評)",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCQbyKhmFHIRptrAJMSwS-dw",
+    "original_url": "https://www.youtube.com/@NeKo_Wumiao",
+    "type": "youtube",
+    "target_bot": "youtube",
+    "enabled": true,
+    "description": "NeKo嗚喵 YouTube 頻道最新說書、生活哲學與閱讀選書重點分析"
+  },
+  {
+    "id": "yt_UCc1rNJSBIks2LUsG2vYeZWA",
+    "name": "🎬 思維咖啡 (YouTube 認知成長)",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCc1rNJSBIks2LUsG2vYeZWA",
+    "original_url": "https://www.youtube.com/@mindcoffee",
+    "type": "youtube",
+    "target_bot": "youtube",
+    "enabled": true,
+    "description": "思維咖啡 YouTube 頻道商業思維、心理學與個人成長重點解析"
+  },
+  {
+    "id": "yt_UChjHWpmNm-3HbLFkQ3TPXaA",
+    "name": "🎬 Better Leaf 好葉 (YouTube 動畫說書)",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UChjHWpmNm-3HbLFkQ3TPXaA",
+    "original_url": "https://www.youtube.com/@betterleaf",
+    "type": "youtube",
+    "target_bot": "youtube",
+    "enabled": true,
+    "description": "好葉 YouTube 頻道個人成長、動畫書摘與高效思維影片重點解析"
+  },
+  {
+    "id": "yt_UCjlPLMYEsq0pjgLL1q24mSg",
+    "name": "🎬 邦妮區塊鏈 (YouTube 加密市場與產業解析)",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCjlPLMYEsq0pjgLL1q24mSg",
+    "original_url": "https://www.youtube.com/@BonnieBlockchain",
+    "type": "youtube",
+    "target_bot": "youtube",
+    "enabled": true,
+    "description": "邦妮區塊鏈 YouTube 頻道最新加密貨幣行情與深度產業專訪重點解析"
+  },
+  {
+    "id": "yt_UC_whOg3XES3Fihic53fvo4Q",
+    "name": "🎬 軟工柴熊 Terry (YouTube 軟體工程與矽谷職涯)",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC_whOg3XES3Fihic53fvo4Q",
+    "original_url": "https://www.youtube.com/@hackbearterry",
+    "type": "youtube",
+    "target_bot": "youtube",
+    "enabled": true,
+    "description": "軟工柴熊 Terry YouTube 頻道軟體工程師職涯、矽谷工作文化與技術專訪深度解析"
+  }
+]

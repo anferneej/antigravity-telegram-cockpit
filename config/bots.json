@@ -1,0 +1,37 @@
+{
+  "finance": {
+    "id": "finance",
+    "name": "💰 財經投資情報 Bot",
+    "description": "聚財網、華爾街日報、DIGITIMES 產經與供應鏈焦點",
+    "token_env": "TG_BOT_TOKEN_FINANCE",
+    "chat_id_env": "TG_CHAT_ID_FINANCE"
+  },
+  "reading": {
+    "id": "reading",
+    "name": "📚 閱讀書摘導讀 Bot",
+    "description": "閱讀前哨站、坦雅讀一讀、77reading、方格子沙龍",
+    "token_env": "TG_BOT_TOKEN_READING",
+    "chat_id_env": "TG_CHAT_ID_READING"
+  },
+  "tech": {
+    "id": "tech",
+    "name": "⚡ 科技產業情報 Bot",
+    "description": "科技新報、DIGITIMES 科技焦點與研究報告",
+    "token_env": "TG_BOT_TOKEN_TECH",
+    "chat_id_env": "TG_CHAT_ID_TECH"
+  },
+  "youtube": {
+    "id": "youtube",
+    "name": "🎬 影音精選情報 Bot",
+    "description": "YouTube 說書、個人成長與知識影音深度重點分析",
+    "token_env": "TG_BOT_TOKEN_YOUTUBE",
+    "chat_id_env": "TG_CHAT_ID_YOUTUBE"
+  },
+  "default": {
+    "id": "default",
+    "name": "🤖 綜合預設 Bot",
+    "description": "未特別指定或備援時的通用接收端",
+    "token_env": "TELEGRAM_BOT_TOKEN",
+    "chat_id_env": "TELEGRAM_CHAT_ID"
+  }
+}

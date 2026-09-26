@@ -1,0 +1,33 @@
+# 敏感環境變數與金鑰（絕對禁止上傳）
+config/.env
+*.env
+.env*
+!.env.example
+
+# 執行時產生的歷史紀錄與快取
+data/
+*.db
+*.sqlite
+
+# 本地日誌
+logs/
+*.log
+
+# Python 編譯快取
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# 系統與編輯器設定
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
