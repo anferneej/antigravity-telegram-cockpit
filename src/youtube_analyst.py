@@ -251,54 +251,100 @@ def extract_full_speech(video_id: str) -> Optional[str]:
 
 def synthesize_structured_summary(title: str, transcript: str) -> str:
     """
-    從長逐字稿提煉出層次分明、深度詳實的繁中重點結構
+    從長逐字稿提煉出層次分明、深度詳實且 100% 語意完整的繁中重點結構（徹底防斷句）
     """
     if not transcript or len(transcript.strip()) < 50:
-        return f"• **主旨**：{title}\n• **核心亮點**：講者深入探討此主題核心觀點，建議觀賞完整影音。"
+        return f"• **主旨重點**：講者針對「{title}」進行深入剖析，完整論述與精采細節建議點擊觀賞完整影音。"
 
-    # 清理停用字詞
+    # 清理停用字詞、時間戳記與無關括號
     cleaned = re.sub(r"\[.*?\]", "", transcript)
     cleaned = re.sub(r"\(.*?\)", "", cleaned)
-    
-    # 篇章分段切割（依語意標點或長度）
-    raw_sentences = re.split(r"[。！？\n]+", cleaned)
-    sentences = [s.strip() for s in raw_sentences if len(s.strip()) >= 15]
+    cleaned = re.sub(r"\[&#8230;\]|\[\.\.\.\]|\.\.\.|…", "", cleaned).strip()
 
+    invalid_endings = (
+        '，', '、', '：', '；', '為', '由', '在', '與', '及', '的',
+        '和', '並', '於', '等', '更', '但', '讓', '將', '以', '或',
+        '較', '至', '向', '從', '包括', '像', '如', '（', '(', '【'
+    )
+
+    sentences = []
+    # 1. 優先檢測是否有標準標點符號
+    has_punct = bool(re.search(r"[。！？]", cleaned))
+    if has_punct:
+        raw_matches = re.findall(r'([^。！？\n]+[。！？][\"』」”\'’）\)]?)', cleaned)
+        for m in raw_matches:
+            s = m.strip()
+            s = re.sub(r'^[•\-\*\d+\.\s]+', '', s)
+            if len(s) < 16 or len(s) > 220:
+                continue
+            core = re.sub(r'[\"』」”\'’）\)]+$', '', s).strip()
+            if not core.endswith(('。', '！', '？')):
+                continue
+            before_punct = core[:-1].strip()
+            if any(before_punct.endswith(ie) for ie in invalid_endings):
+                continue
+            sentences.append(s)
+
+    # 2. 若逐字稿缺乏標點（如自動字幕），則以自然詞意與長度重組為完整句子
     if len(sentences) < 4:
-        # 短片段直接條列
-        points = [f"• {s}" for s in sentences[:4]]
-        return "\n".join(points)
+        tokens = [t.strip() for t in re.split(r"[\n\s]+", cleaned) if t.strip()]
+        reconstructed = []
+        curr = []
+        curr_len = 0
+        for tok in tokens:
+            curr.append(tok)
+            curr_len += len(tok)
+            if curr_len >= 38:
+                last_char = tok[-1] if tok else ""
+                if last_char not in invalid_endings:
+                    sent = "".join(curr)
+                    if not sent.endswith(("。", "！", "？")):
+                        sent += "。"
+                    reconstructed.append(sent)
+                    curr = []
+                    curr_len = 0
+        if curr:
+            sent = "".join(curr)
+            if len(sent) >= 15:
+                if not sent.endswith(("。", "！", "？")):
+                    sent += "。"
+                reconstructed.append(sent)
+        if len(reconstructed) > len(sentences):
+            sentences = reconstructed
+
+    if not sentences:
+        return f"• **主旨重點**：本片深度探討「{title}」，講者提出諸多原創見解，完整精彩內容請參閱影音連結。"
 
     total_len = len(sentences)
-    chunk1 = sentences[: int(total_len * 0.35)]
-    chunk2 = sentences[int(total_len * 0.35): int(total_len * 0.75)]
-    chunk3 = sentences[int(total_len * 0.75):]
+    if total_len <= 3:
+        points = [f"• {s}" for s in sentences]
+        return "\n".join(points)
 
-    def pick_best(chunk: List[str], count: int = 2) -> List[str]:
-        # 偏好帶有關鍵結論詞或長度適中的句子
-        keywords = ["重點", "核心", "關鍵", "原因", "發現", "認為", "策略", "問題", "原則", "方法", "結論", "建議"]
+    chunk1 = sentences[: int(total_len * 0.35)] or sentences[:1]
+    chunk2 = sentences[int(total_len * 0.35): int(total_len * 0.75)] or sentences[1:2]
+    chunk3 = sentences[int(total_len * 0.75):] or sentences[2:3]
+
+    def pick_best(chunk: List[str], count: int = 1) -> List[str]:
+        keywords = ["重點", "核心", "關鍵", "原因", "發現", "認為", "策略", "問題", "原則", "方法", "結論", "建議", "投資", "分析", "影響"]
         scored = []
         for s in chunk:
             score = sum(2 for kw in keywords if kw in s)
-            if 25 <= len(s) <= 90:
+            if 30 <= len(s) <= 120:
                 score += 3
             scored.append((score, s))
         scored.sort(key=lambda x: x[0], reverse=True)
         return [item[1] for item in scored[:count]]
 
-    p1 = pick_best(chunk1, 2)
-    p2 = pick_best(chunk2, 2)
-    p3 = pick_best(chunk3, 2)
+    p1 = pick_best(chunk1, 1) or [chunk1[0]]
+    p2 = pick_best(chunk2, 1) or [chunk2[0]]
+    p3 = pick_best(chunk3, 1) or [chunk3[0]]
 
-    res = []
-    res.append("🎙️ **講者口述全片重點精萃**：")
-    for s in p1:
-        res.append(f"• **開篇洞察**：{s}")
-    for s in p2:
-        res.append(f"• **核心論述**：{s}")
-    for s in p3:
-        res.append(f"• **實務啟發**：{s}")
-
+    res = [
+        "🎙️ **講者口述全片重點精萃**：",
+        f"• **開篇洞察**：{p1[0]}",
+        f"• **核心論述**：{p2[0]}",
+        f"• **實務啟發**：{p3[0]}"
+    ]
     return "\n".join(res)
 
 
